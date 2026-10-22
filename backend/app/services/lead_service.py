@@ -12,6 +12,19 @@ from app.schemas.dashboard import DashboardCharts, DashboardStats, FollowUpAlert
 from app.schemas.lead import LeadCreate, LeadPagination, LeadResponse, LeadUpdate
 
 
+def sanitize_csv_cell(val: object) -> str:
+    """Mitigate CSV / Formula Injection (CWE-1236).
+
+    Prefix cells starting with formula characters (=, +, -, @, tab, cr) with a single quote.
+    """
+    if val is None:
+        return ""
+    s = str(val).strip()
+    if s and s[0] in ("=", "+", "-", "@", "\t", "\r"):
+        return f"'{s}"
+    return s
+
+
 class LeadService:
     @staticmethod
     def create_lead(db: Session, owner: User, lead_in: LeadCreate) -> LeadResponse:
@@ -183,6 +196,7 @@ class LeadService:
                 "Phone Number",
                 "Company",
                 "Service Interested",
+                "Source",
                 "Status",
                 "Follow-up Date",
                 "Notes",
@@ -192,16 +206,21 @@ class LeadService:
         for lead in items:
             writer.writerow(
                 [
-                    str(lead.id),
-                    lead.name,
-                    lead.email or "",
-                    lead.phone_number or "",
-                    lead.company or "",
-                    lead.service_interested or "",
-                    lead.status,
-                    lead.follow_up_date.isoformat() if lead.follow_up_date else "",
-                    lead.notes or "",
-                    lead.created_at.isoformat() if lead.created_at else "",
+                    sanitize_csv_cell(str(lead.id)),
+                    sanitize_csv_cell(lead.name),
+                    sanitize_csv_cell(lead.email),
+                    sanitize_csv_cell(lead.phone_number),
+                    sanitize_csv_cell(lead.company),
+                    sanitize_csv_cell(lead.service_interested),
+                    sanitize_csv_cell(lead.source),
+                    sanitize_csv_cell(lead.status),
+                    sanitize_csv_cell(
+                        lead.follow_up_date.isoformat() if lead.follow_up_date else ""
+                    ),
+                    sanitize_csv_cell(lead.notes),
+                    sanitize_csv_cell(
+                        lead.created_at.isoformat() if lead.created_at else ""
+                    ),
                 ]
             )
 

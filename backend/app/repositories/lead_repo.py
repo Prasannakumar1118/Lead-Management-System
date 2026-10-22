@@ -18,6 +18,7 @@ SORTABLE_COLUMNS = {
     "created_at": Lead.created_at,
     "name": Lead.name,
     "company": Lead.company,
+    "source": Lead.source,
     "follow_up_date": Lead.follow_up_date,
     "status": Lead.status,
 }
@@ -58,6 +59,7 @@ class LeadRepository:
                     Lead.email.ilike(term),
                     Lead.phone_number.ilike(term),
                     Lead.company.ilike(term),
+                    Lead.source.ilike(term),
                 )
             )
 
@@ -107,6 +109,7 @@ class LeadRepository:
             service_interested=lead_in.service_interested.strip()
             if lead_in.service_interested
             else None,
+            source=lead_in.source.strip() if lead_in.source else None,
             status=lead_in.status,
             follow_up_date=lead_in.follow_up_date,
             notes=lead_in.notes.strip() if lead_in.notes else None,

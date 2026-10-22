@@ -10,6 +10,7 @@ from app.api.v1.api import api_router
 from app.core.config import settings
 from app.db.base import Base
 from app.db.session import engine
+from app.middleware.rate_limiter import RateLimiterMiddleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 
 
@@ -40,8 +41,9 @@ app.add_middleware(
     expose_headers=["Content-Disposition"],
 )
 
-# HTTP Security Headers
+# HTTP Security Headers & Rate Limiting
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimiterMiddleware)
 
 
 @app.get("/health", tags=["Health"], status_code=status.HTTP_200_OK)

@@ -101,3 +101,19 @@ def test_invalid_token_fails(client: TestClient):
         "/api/v1/auth/me", headers={"Authorization": "Bearer invalid.jwt.token"}
     )
     assert response.status_code == 401
+
+
+def test_logout_revokes_token(client: TestClient, user_a_headers: dict):
+    # Verify user_a can access protected route
+    resp1 = client.get("/api/v1/auth/me", headers=user_a_headers)
+    assert resp1.status_code == 200
+
+    # Logout
+    logout_resp = client.post("/api/v1/auth/logout", headers=user_a_headers)
+    assert logout_resp.status_code == 200
+    assert "Successfully logged out" in logout_resp.json()["message"]
+
+    # Verify same token is now rejected with 401 revoked
+    resp2 = client.get("/api/v1/auth/me", headers=user_a_headers)
+    assert resp2.status_code == 401
+    assert "revoked" in resp2.json()["detail"].lower()

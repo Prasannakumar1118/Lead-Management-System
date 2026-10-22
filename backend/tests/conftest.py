@@ -2,6 +2,9 @@ import contextlib
 import os
 from collections.abc import Generator
 
+# Disable rate limiting for the automated test suite
+os.environ["DISABLE_RATE_LIMIT"] = "true"
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine

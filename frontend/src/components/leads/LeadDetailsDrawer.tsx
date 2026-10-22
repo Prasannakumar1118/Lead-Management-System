@@ -19,6 +19,7 @@ import {
   Pencil,
   Trash2,
   AlertTriangle,
+  Globe,
 } from 'lucide-react';
 
 export interface LeadDetailsDrawerProps {
@@ -111,6 +112,14 @@ export const LeadDetailsDrawer: React.FC<LeadDetailsDrawerProps> = ({
               </span>
               <span className="font-medium text-slate-900">
                 {lead.service_interested || <span className="text-slate-300">Not specified</span>}
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <span className="text-slate-500 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-slate-400" /> Lead Source
+              </span>
+              <span className="font-medium text-slate-900">
+                {lead.source || <span className="text-slate-300">Not specified</span>}
               </span>
             </div>
           </div>

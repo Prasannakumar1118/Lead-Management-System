@@ -27,6 +27,7 @@ class Lead(Base):
     )
     company: Mapped[str | None] = mapped_column(String(255), nullable=True)
     service_interested: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    source: Mapped[str | None] = mapped_column(String(100), index=True, nullable=True)
     # Valid statuses: New, Contacted, Qualified, Converted, Lost
     status: Mapped[str] = mapped_column(
         String(50), default="New", index=True, nullable=False

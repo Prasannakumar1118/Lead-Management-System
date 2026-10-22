@@ -27,6 +27,7 @@ export interface Lead {
   phone_number?: string | null;
   company?: string | null;
   service_interested?: string | null;
+  source?: string | null;
   status: LeadStatus;
   follow_up_date?: string | null;
   notes?: string | null;

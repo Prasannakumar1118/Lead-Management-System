@@ -15,6 +15,7 @@ export const leadFormSchema = z
       .or(z.literal('')),
     company: z.string().max(255).optional().or(z.literal('')),
     service_interested: z.string().max(255).optional().or(z.literal('')),
+    source: z.string().max(100).optional().or(z.literal('')),
     status: z.enum(['New', 'Contacted', 'Qualified', 'Converted', 'Lost']),
     follow_up_date: z.string().optional().or(z.literal('')),
     notes: z.string().optional().or(z.literal('')),

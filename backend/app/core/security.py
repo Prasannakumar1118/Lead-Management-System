@@ -75,3 +75,26 @@ def decode_token(token: str) -> dict | None:
         return payload
     except jwt.PyJWTError:
         return None
+
+
+# Server-side token revocation denylist (token -> expiry timestamp)
+_revoked_tokens: dict[str, float] = {}
+
+
+def revoke_token(token: str, exp: float | None = None) -> None:
+    """Add a token to the server-side revocation list."""
+    if exp is None:
+        payload = decode_token(token)
+        exp = float(payload.get("exp", 0)) if payload else 0.0
+    _revoked_tokens[token] = exp
+
+
+def is_token_revoked(token: str) -> bool:
+    """Check if token has been explicitly revoked."""
+    if token not in _revoked_tokens:
+        return False
+    exp = _revoked_tokens[token]
+    if exp and datetime.now(UTC).timestamp() > exp:
+        _revoked_tokens.pop(token, None)
+        return False
+    return True

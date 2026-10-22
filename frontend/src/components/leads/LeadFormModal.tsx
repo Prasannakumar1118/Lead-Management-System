@@ -24,6 +24,18 @@ const STATUS_OPTIONS: { value: LeadStatus; label: string }[] = [
   { value: 'Lost', label: 'Lost' },
 ];
 
+const SOURCE_OPTIONS = [
+  { value: '', label: 'Select acquisition channel' },
+  { value: 'Website', label: 'Website Form' },
+  { value: 'LinkedIn', label: 'LinkedIn' },
+  { value: 'Referral', label: 'Client Referral' },
+  { value: 'Google Search', label: 'Google Search / SEO' },
+  { value: 'Cold Outreach', label: 'Cold Outreach' },
+  { value: 'Inbound Email', label: 'Inbound Email' },
+  { value: 'Webinar', label: 'Webinar' },
+  { value: 'Conference', label: 'Conference / Event' },
+];
+
 export const LeadFormModal: React.FC<LeadFormModalProps> = ({
   isOpen,
   onClose,
@@ -46,6 +58,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
       phone_number: '',
       company: '',
       service_interested: '',
+      source: '',
       status: 'New',
       follow_up_date: '',
       notes: '',
@@ -71,6 +84,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
         phone_number: initialData.phone_number || '',
         company: initialData.company || '',
         service_interested: initialData.service_interested || '',
+        source: initialData.source || '',
         status: initialData.status,
         follow_up_date: formattedFollowUp,
         notes: initialData.notes || '',
@@ -82,6 +96,7 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
         phone_number: '',
         company: '',
         service_interested: '',
+        source: '',
         status: 'New',
         follow_up_date: '',
         notes: '',
@@ -159,8 +174,14 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
           />
         </div>
 
-        {/* Status & Follow-up Date */}
+        {/* Lead Source & Status */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select
+            label="Lead Source"
+            options={SOURCE_OPTIONS}
+            error={errors.source?.message}
+            {...register('source')}
+          />
           <Select
             label="Status"
             required
@@ -168,21 +189,23 @@ export const LeadFormModal: React.FC<LeadFormModalProps> = ({
             error={errors.status?.message}
             {...register('status')}
           />
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Follow-up Date & Time
-            </label>
-            <input
-              type="datetime-local"
-              className="flex w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500"
-              {...register('follow_up_date')}
-            />
-            {errors.follow_up_date?.message && (
-              <p className="mt-1.5 text-xs text-rose-600 font-medium">
-                {errors.follow_up_date.message}
-              </p>
-            )}
-          </div>
+        </div>
+
+        {/* Follow-up Date */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Follow-up Date & Time
+          </label>
+          <input
+            type="datetime-local"
+            className="flex w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500"
+            {...register('follow_up_date')}
+          />
+          {errors.follow_up_date?.message && (
+            <p className="mt-1.5 text-xs text-rose-600 font-medium">
+              {errors.follow_up_date.message}
+            </p>
+          )}
         </div>
 
         {/* Notes */}

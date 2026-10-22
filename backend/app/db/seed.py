@@ -238,6 +238,7 @@ def seed_database():
                     phone_number=item["phone_number"],
                     company=item["company"],
                     service_interested=item["service_interested"],
+                    source=item.get("source", "Website Inbound"),
                     status=item["status"],
                     follow_up_date=item["follow_up_date"],
                     notes=item["notes"],

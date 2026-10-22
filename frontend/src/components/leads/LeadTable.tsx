@@ -155,7 +155,12 @@ export const LeadTable: React.FC<LeadTableProps> = ({
                     </div>
                   </td>
                   <td className="py-3.5 px-4 text-xs text-slate-600">
-                    {lead.service_interested || <span className="text-slate-300">—</span>}
+                    <div>{lead.service_interested || <span className="text-slate-300">—</span>}</div>
+                    {lead.source && (
+                      <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
+                        {lead.source}
+                      </span>
+                    )}
                   </td>
                   <td className="py-3.5 px-4">
                     <Badge variant="status" status={lead.status} />
@@ -233,6 +238,11 @@ export const LeadTable: React.FC<LeadTableProps> = ({
                     <Building2 className="w-3.5 h-3.5 text-slate-400" />
                     {lead.company}
                   </p>
+                )}
+                {lead.source && (
+                  <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">
+                    {lead.source}
+                  </span>
                 )}
               </div>
               <Badge variant="status" status={lead.status} />

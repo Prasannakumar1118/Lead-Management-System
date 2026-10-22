@@ -21,6 +21,9 @@ class LeadBase(BaseModel):
     service_interested: str | None = Field(
         None, max_length=255, description="Service or package of interest"
     )
+    source: str | None = Field(
+        None, max_length=100, description="Lead acquisition channel or source"
+    )
     status: LeadStatus = Field("New", description="Current lifecycle status")
     follow_up_date: datetime | None = Field(
         None, description="Scheduled follow-up date and time"
@@ -46,6 +49,7 @@ class LeadUpdate(BaseModel):
     phone_number: str | None = Field(None, max_length=50)
     company: str | None = Field(None, max_length=255)
     service_interested: str | None = Field(None, max_length=255)
+    source: str | None = Field(None, max_length=100)
     status: LeadStatus | None = None
     follow_up_date: datetime | None = None
     notes: str | None = None

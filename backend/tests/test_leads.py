@@ -130,3 +130,42 @@ def test_export_leads_csv(client: TestClient, user_a_headers: dict):
     assert resp.status_code == 200
     assert "text/csv" in resp.headers["content-type"]
     assert "CSV Export Lead" in resp.text
+
+
+def test_create_and_update_lead_source(client: TestClient, user_a_headers: dict):
+    create_resp = client.post(
+        "/api/v1/leads",
+        json={
+            "name": "Sourced Lead",
+            "email": "sourced@example.com",
+            "source": "LinkedIn",
+        },
+        headers=user_a_headers,
+    )
+    assert create_resp.status_code == 201
+    lead_id = create_resp.json()["id"]
+    assert create_resp.json()["source"] == "LinkedIn"
+
+    # Update source
+    patch_resp = client.patch(
+        f"/api/v1/leads/{lead_id}",
+        json={"source": "Referral"},
+        headers=user_a_headers,
+    )
+    assert patch_resp.status_code == 200
+    assert patch_resp.json()["source"] == "Referral"
+
+
+def test_export_leads_csv_sanitizes_formula_injection(client: TestClient, user_a_headers: dict):
+    # Test CWE-1236: CSV Formula Injection protection
+    dangerous_name = "=cmd|' /C calc'!A0"
+    client.post(
+        "/api/v1/leads",
+        json={"name": dangerous_name, "email": "exploit@example.com"},
+        headers=user_a_headers,
+    )
+    resp = client.get("/api/v1/leads/export/csv", headers=user_a_headers)
+    assert resp.status_code == 200
+    # Sanitize prefix single quote should be prepended
+    assert f"'{dangerous_name}" in resp.text
+
