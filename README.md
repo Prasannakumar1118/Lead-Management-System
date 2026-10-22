@@ -257,11 +257,31 @@ npm run build
 
 ## 8. Deployment Guide
 
+### Frontend Deployment (GitHub Pages)
+The pre-built production bundle has been published to the `gh-pages` branch, and a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`) is enabled:
+1. Open your repository on GitHub: [`https://github.com/Prasannakumar1118/Lead-Management-System`](https://github.com/Prasannakumar1118/Lead-Management-System).
+2. Go to **Settings > Pages**.
+3. Under **Build and deployment > Source**, choose **Deploy from a branch**.
+4. Select branch **`gh-pages`** and folder **`/ (root)`**, then click **Save**.
+5. Your live app is available at:
+   👉 **`https://prasannakumar1118.github.io/Lead-Management-System/`**
+
+### Frontend Deployment (Netlify)
+The repository includes a ready-to-use `netlify.toml` and `_redirects` file for single-page routing:
+1. Log in to [Netlify](https://app.netlify.com/).
+2. Click **Add new site > Import an existing project > GitHub**.
+3. Select `Lead-Management-System`.
+4. Netlify automatically detects `netlify.toml` settings:
+   - Base directory: `frontend`
+   - Build command: `npm run build`
+   - Publish directory: `frontend/dist`
+5. Click **Deploy LeadFlow**!
+
 ### Backend Deployment (Render)
 1. Push this repository to GitHub.
 2. In Render, select **New > Blueprint** and link the repository.
 3. Render reads `render.yaml` and provisions:
-   - A managed PostgreSQL database.
+   - A managed PostgreSQL database (`leadflow-db`).
    - The FastAPI web service running `alembic upgrade head && python -m app.db.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 4. Copy the assigned backend URL (e.g. `https://leadflow-api.onrender.com`).
 
