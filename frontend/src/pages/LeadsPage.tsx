@@ -36,6 +36,10 @@ export const LeadsPage: React.FC = () => {
   const filters: LeadFilterParams = {
     search: searchParams.get('search') || undefined,
     status: searchParams.get('status') || undefined,
+    created_after: searchParams.get('created_after') || undefined,
+    created_before: searchParams.get('created_before') || undefined,
+    follow_up_after: searchParams.get('follow_up_after') || undefined,
+    follow_up_before: searchParams.get('follow_up_before') || undefined,
     sort_by: searchParams.get('sort_by') || 'created_at',
     sort_dir: (searchParams.get('sort_dir') as 'asc' | 'desc') || 'desc',
     page: Number(searchParams.get('page')) || 1,

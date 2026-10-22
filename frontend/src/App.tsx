@@ -7,6 +7,9 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { LeadsPage } from './pages/LeadsPage';
+import { CreateLeadPage } from './pages/CreateLeadPage';
+import { EditLeadPage } from './pages/EditLeadPage';
+import { LeadDetailsPage } from './pages/LeadDetailsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export function App() {
@@ -24,6 +27,9 @@ export function App() {
               <Route element={<AppLayout />}>
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/leads" element={<LeadsPage />} />
+                <Route path="/leads/new" element={<CreateLeadPage />} />
+                <Route path="/leads/:id" element={<LeadDetailsPage />} />
+                <Route path="/leads/:id/edit" element={<EditLeadPage />} />
               </Route>
             </Route>
 
