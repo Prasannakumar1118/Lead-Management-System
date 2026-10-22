@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Managed PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: leadflow_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: leadflow
+      POSTGRES_USER: leadflow_user
+      POSTGRES_PASSWORD: leadflow_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leadflow_user -d leadflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: leadflow_backend
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+psycopg://leadflow_user:leadflow_password@postgres:5432/leadflow
+      - SECRET_KEY=leadflow-compose-secret-key-32-chars-long-development
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+      - CORS_ORIGINS=["http://localhost:5173", "http://localhost:3000", "http://localhost:80"]
+      - DEMO_USER_EMAIL=demo@swandigital.com
+      - DEMO_USER_PASSWORD=DemoPassword123!
+      - DEMO_ADMIN_EMAIL=admin@swandigital.com
+      - DEMO_ADMIN_PASSWORD=AdminPassword123!
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # React Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: leadflow_frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

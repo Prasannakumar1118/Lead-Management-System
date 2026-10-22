@@ -1,0 +1,41 @@
+services:
+  # Backend FastAPI Service
+  - type: web
+    name: leadflow-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "alembic upgrade head && python -m app.db.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: leadflow-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 60
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: 7
+      - key: CORS_ORIGINS
+        value: '["https://leadflow.vercel.app", "http://localhost:5173"]'
+      - key: DEMO_USER_EMAIL
+        value: demo@swandigital.com
+      - key: DEMO_USER_PASSWORD
+        value: DemoPassword123!
+      - key: DEMO_ADMIN_EMAIL
+        value: admin@swandigital.com
+      - key: DEMO_ADMIN_PASSWORD
+        value: AdminPassword123!
+
+databases:
+  # Managed PostgreSQL
+  - name: leadflow-db
+    databaseName: leadflow
+    user: leadflow_user
+    plan: free
