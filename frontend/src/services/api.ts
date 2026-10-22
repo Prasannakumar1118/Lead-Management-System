@@ -10,15 +10,19 @@ export function getApiBaseUrl(): string {
     }
   }
 
-  // 2. Build-time environment variable
+  // 2. When accessed over HTTPS (e.g. GitHub Pages or Netlify), enforce HTTPS to avoid Mixed Content
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    const envUrl = import.meta.env.VITE_API_URL;
+    if (envUrl && envUrl.trim() && envUrl.startsWith('https://')) {
+      return envUrl.trim().replace(/\/+$/, '');
+    }
+    return 'https://leadflow-api-test.loca.lt/api/v1';
+  }
+
+  // 3. Build-time environment variable for HTTP / local environments
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && envUrl.trim()) {
     return envUrl.trim().replace(/\/+$/, '');
-  }
-
-  // 3. Fallback when accessed over HTTPS (e.g. GitHub Pages or Netlify) to avoid Mixed Content
-  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    return 'https://leadflow-api-test.loca.lt/api/v1';
   }
 
   // 4. Default for local HTTP development
