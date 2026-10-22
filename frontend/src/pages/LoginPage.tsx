@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../components/ui/Toast';
-import { getApiErrorMessage } from '../services/api';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import {
+  getApiErrorMessage,
+  getApiBaseUrl,
+  setApiBaseUrl,
+  resetApiBaseUrl,
+} from '../services/api';
+import { Sparkles, ArrowRight, Server, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +19,43 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+
+  // API Endpoint configuration & health check state
+  const [apiUrl, setApiUrl] = useState(getApiBaseUrl());
+  const [isEditingUrl, setIsEditingUrl] = useState(false);
+  const [inputUrl, setInputUrl] = useState(getApiBaseUrl());
+  const [healthStatus, setHealthStatus] = useState<'checking' | 'healthy' | 'error'>('checking');
+  const [healthMessage, setHealthMessage] = useState('Checking backend connection...');
+
+  const checkHealth = async (urlToCheck?: string) => {
+    setHealthStatus('checking');
+    setHealthMessage('Checking connection...');
+    const targetUrl = urlToCheck || getApiBaseUrl();
+    const cleanUrl = targetUrl.replace(/\/+$/, '');
+    const healthUrl = cleanUrl.endsWith('/api/v1')
+      ? `${cleanUrl.slice(0, -7)}/health`
+      : `${cleanUrl}/health`;
+
+    try {
+      const res = await fetch(healthUrl, {
+        headers: { 'Bypass-Tunnel-Reminder': 'true' },
+      });
+      if (res.ok) {
+        setHealthStatus('healthy');
+        setHealthMessage('Backend Online & Connected');
+      } else {
+        setHealthStatus('error');
+        setHealthMessage(`Server returned HTTP ${res.status}`);
+      }
+    } catch {
+      setHealthStatus('error');
+      setHealthMessage('Unable to reach backend server');
+    }
+  };
+
+  useEffect(() => {
+    checkHealth();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +76,24 @@ export const LoginPage: React.FC = () => {
   const handleQuickFill = (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
     setPassword(demoPass);
+  };
+
+  const handleSaveApiUrl = () => {
+    if (!inputUrl.trim()) return;
+    setApiBaseUrl(inputUrl.trim());
+    setApiUrl(getApiBaseUrl());
+    setIsEditingUrl(false);
+    toast.success('API Endpoint updated!');
+    checkHealth(inputUrl.trim());
+  };
+
+  const handleResetApiUrl = () => {
+    resetApiBaseUrl();
+    setApiUrl(getApiBaseUrl());
+    setInputUrl(getApiBaseUrl());
+    setIsEditingUrl(false);
+    toast.info('API Endpoint reset to default.');
+    checkHealth();
   };
 
   return (
@@ -110,7 +170,91 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-6 text-center text-xs text-slate-500">
+          {/* API Server Endpoint Status & Configuration */}
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${
+                    healthStatus === 'healthy'
+                      ? 'bg-emerald-500'
+                      : healthStatus === 'checking'
+                      ? 'bg-amber-400 animate-pulse'
+                      : 'bg-rose-500'
+                  }`}
+                />
+                <span className="text-slate-500 truncate text-[11px]">
+                  Server:{' '}
+                  <span className="text-slate-700 font-semibold font-mono" title={apiUrl}>
+                    {apiUrl.replace(/^https?:\/\//, '')}
+                  </span>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingUrl(!isEditingUrl)}
+                className="text-indigo-600 hover:text-indigo-800 font-semibold text-[11px] shrink-0 ml-2"
+              >
+                {isEditingUrl ? 'Close' : 'Configure'}
+              </button>
+            </div>
+
+            {isEditingUrl && (
+              <div className="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                <p className="text-slate-600 font-medium text-[11px]">
+                  Connect to your active backend server API:
+                </p>
+                <div className="flex gap-1.5">
+                  <input
+                    type="url"
+                    value={inputUrl}
+                    onChange={(e) => setInputUrl(e.target.value)}
+                    placeholder="https://your-backend.com/api/v1"
+                    className="flex-1 px-2 py-1 bg-white border border-slate-200 rounded-md text-xs font-mono text-slate-800 focus:outline-none focus:border-indigo-500"
+                  />
+                  <Button size="sm" type="button" onClick={handleSaveApiUrl}>
+                    Save
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span
+                    className={`text-[10px] font-medium flex items-center gap-1 ${
+                      healthStatus === 'healthy'
+                        ? 'text-emerald-600'
+                        : healthStatus === 'checking'
+                        ? 'text-amber-600'
+                        : 'text-rose-600'
+                    }`}
+                  >
+                    {healthStatus === 'healthy' ? (
+                      <CheckCircle2 className="w-3 h-3 shrink-0" />
+                    ) : (
+                      <AlertTriangle className="w-3 h-3 shrink-0" />
+                    )}
+                    {healthMessage}
+                  </span>
+                  <div className="space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => checkHealth(inputUrl)}
+                      className="text-[10px] text-slate-500 hover:text-slate-800 underline inline-flex items-center gap-0.5"
+                    >
+                      <RefreshCw className="w-2.5 h-2.5" /> Test
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleResetApiUrl}
+                      className="text-[10px] text-slate-500 hover:text-rose-600 underline"
+                    >
+                      Reset Default
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-5 text-center text-xs text-slate-500">
             Don't have an account?{' '}
             <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-500">
               Create an account

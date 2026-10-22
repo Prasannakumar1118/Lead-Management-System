@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] | str = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://prasannakumar1118.github.io",
         "https://leadflow.vercel.app",
     ]
 

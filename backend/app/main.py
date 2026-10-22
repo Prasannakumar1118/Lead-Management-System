@@ -31,10 +31,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS configuration - explicit origins only, no wildcard with credentials
+# CORS configuration - explicit origins and trusted production regex
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|.*\.github\.io|.*\.netlify\.app|.*\.vercel\.app|.*\.onrender\.com|.*\.loca\.lt)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
