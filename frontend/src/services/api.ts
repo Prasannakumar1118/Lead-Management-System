@@ -16,7 +16,7 @@ export function getApiBaseUrl(): string {
     if (envUrl && envUrl.trim() && envUrl.startsWith('https://')) {
       return envUrl.trim().replace(/\/+$/, '');
     }
-    return 'https://leadflow-api-test.loca.lt/api/v1';
+    return 'https://petite-bats-divide.loca.lt/api/v1';
   }
 
   // 3. Build-time environment variable for HTTP / local environments
