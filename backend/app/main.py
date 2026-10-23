@@ -16,8 +16,13 @@ from app.middleware.security_headers import SecurityHeadersMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Ensure tables exist on startup (especially for SQLite dev and tests)
+    # Ensure tables exist on startup (especially for SQLite dev, Vercel, and tests)
     Base.metadata.create_all(bind=engine)
+    try:
+        from app.db.seed import seed_database
+        seed_database()
+    except Exception as e:
+        print(f"Startup seed notice: {e}")
     yield
 
 

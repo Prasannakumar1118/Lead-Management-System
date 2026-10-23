@@ -1,4 +1,5 @@
 import json
+import os
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -32,6 +33,15 @@ class Settings(BaseSettings):
     DEMO_USER_PASSWORD: str = "DemoPassword123!"
     DEMO_ADMIN_EMAIL: str = "admin@swandigital.com"
     DEMO_ADMIN_PASSWORD: str = "AdminPassword123!"
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def validate_database_url(cls, v: str) -> str:
+        if isinstance(v, str):
+            # If running on Vercel or AWS Lambda with default relative sqlite path, relocate to /tmp
+            if os.environ.get("VERCEL") and v.startswith("sqlite:///."):
+                return "sqlite:////tmp/leadflow.db"
+        return v
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

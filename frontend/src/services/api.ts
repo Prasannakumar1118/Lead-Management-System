@@ -10,22 +10,23 @@ export function getApiBaseUrl(): string {
     }
   }
 
-  // 2. When accessed over HTTPS (e.g. GitHub Pages or Netlify), enforce HTTPS to avoid Mixed Content
-  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    const envUrl = import.meta.env.VITE_API_URL;
-    if (envUrl && envUrl.trim() && envUrl.startsWith('https://')) {
-      return envUrl.trim().replace(/\/+$/, '');
-    }
-    return 'https://leadflow-api.onrender.com/api/v1';
-  }
-
-  // 3. Build-time environment variable for HTTP / local environments
+  // 2. Build-time environment variable (explicit override)
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl && envUrl.trim()) {
     return envUrl.trim().replace(/\/+$/, '');
   }
 
-  // 4. Default for local HTTP development
+  // 3. When deployed on Vercel (same-origin full-stack architecture)
+  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+    return '/api/v1';
+  }
+
+  // 4. When accessed over HTTPS (e.g. GitHub Pages or Netlify), enforce HTTPS to avoid Mixed Content
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    return 'https://leadflow-api.onrender.com/api/v1';
+  }
+
+  // 5. Default for local HTTP development
   return 'http://localhost:8000/api/v1';
 }
 

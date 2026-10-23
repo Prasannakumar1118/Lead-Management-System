@@ -1,0 +1,10 @@
+{
+  "name": "leadflow-lead-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LeadFlow — Lead Management System for Swan Digital Solutions",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "vercel-build": "cd frontend && npm install && npm run build"
+  }
+}
