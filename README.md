@@ -285,12 +285,24 @@ The repository includes a ready-to-use `netlify.toml` and `_redirects` file for 
    - The FastAPI web service running `alembic upgrade head && python -m app.db.seed && uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
 4. Copy the assigned backend URL (e.g. `https://leadflow-api.onrender.com`).
 
-### Frontend Deployment (Vercel)
-1. Import the `frontend` folder into Vercel.
+### Full-Stack Deployment (Vercel)
+The repository is fully configured for zero-configuration full-stack deployment on Vercel:
+1. Open [https://vercel.com/new](https://vercel.com/new) and import `Lead-Management-System`.
+2. Vercel automatically detects the root `vercel.json`, deploying the React Vite frontend and FastAPI backend (`api/index.py`) under a single domain.
+3. In Vercel Project Settings, add the following Environment Variables:
+   - `DATABASE_URL`: Your persistent PostgreSQL connection string from [Supabase](https://supabase.com) or Neon (e.g. `postgresql+psycopg://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres`).
+   - `SECRET_KEY`: A 32+ character random secret for JWT encryption.
+4. Click **Deploy**!
+   - Both the frontend and backend operate 24/7 in the cloud without depending on local machines or Antigravity sessions.
+   - All API requests use same-origin relative `/api/v1` routes with zero CORS friction.
+
+### Standalone Frontend Deployment (Vercel)
+If deploying only the frontend to Vercel:
+1. Import `Lead-Management-System` into Vercel with Root Directory set to **`frontend`**.
 2. Framework Preset: **Vite**.
 3. Set environment variable:
-   - `VITE_API_URL` = `https://leadflow-api.onrender.com/api/v1`
-4. Deploy! The included `vercel.json` ensures client-side routing and security headers work seamlessly.
+   - `VITE_API_URL` = Your hosted backend API URL (e.g. `https://leadflow-api.onrender.com/api/v1`).
+4. Deploy! The included `frontend/vercel.json` provides client-side routing and security headers.
 
 ---
 
