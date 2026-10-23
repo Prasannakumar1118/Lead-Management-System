@@ -16,7 +16,7 @@ export function getApiBaseUrl(): string {
     if (envUrl && envUrl.trim() && envUrl.startsWith('https://')) {
       return envUrl.trim().replace(/\/+$/, '');
     }
-    return 'https://petite-bats-divide.loca.lt/api/v1';
+    return 'https://leadflow-api.onrender.com/api/v1';
   }
 
   // 3. Build-time environment variable for HTTP / local environments
@@ -46,7 +46,7 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
     'Bypass-Tunnel-Reminder': 'true',
   },
-  timeout: 15000,
+  timeout: 60000,
 });
 
 // Attach JWT access token and ensure baseURL is fresh
@@ -100,7 +100,15 @@ export function getApiErrorMessage(error: unknown): string {
     }
 
     if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-      return `Connection Timeout: The API server at "${currentBaseUrl}" did not respond within 15 seconds.`;
+      return `Connection Timeout: The API server at "${currentBaseUrl}" did not respond within 60 seconds. If the backend is hosted on a free cloud tier (such as Render), it may be cold-starting. Please wait a moment and try again.`;
+    }
+
+    if (error.response?.status === 503) {
+      return `Backend Service Suspended (HTTP 503): The cloud backend at "${currentBaseUrl}" is suspended. Please resume the service in your Render dashboard (https://dashboard.render.com) or enter an active backend URL in the API Server Settings below.`;
+    }
+
+    if (error.response?.status === 502) {
+      return `Bad Gateway (HTTP 502): The cloud backend at "${currentBaseUrl}" is currently booting. Please wait 30 seconds for the container to start, or enter an active backend URL below.`;
     }
 
     const data = error.response?.data;

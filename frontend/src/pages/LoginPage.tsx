@@ -37,19 +37,34 @@ export const LoginPage: React.FC = () => {
       : `${cleanUrl}/health`;
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
       const res = await fetch(healthUrl, {
         headers: { 'Bypass-Tunnel-Reminder': 'true' },
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
+
       if (res.ok) {
         setHealthStatus('healthy');
         setHealthMessage('Backend Online & Connected');
+      } else if (res.status === 503) {
+        setHealthStatus('error');
+        setHealthMessage('Service Suspended on Render (resume in dashboard.render.com)');
+      } else if (res.status === 502) {
+        setHealthStatus('checking');
+        setHealthMessage('Server Booting / Cold-starting...');
       } else {
         setHealthStatus('error');
         setHealthMessage(`Server returned HTTP ${res.status}`);
       }
-    } catch {
+    } catch (e: any) {
       setHealthStatus('error');
-      setHealthMessage('Unable to reach backend server');
+      if (e?.name === 'AbortError') {
+        setHealthMessage('Timeout: Server is sleeping or cold-starting');
+      } else {
+        setHealthMessage('Unable to reach backend server');
+      }
     }
   };
 
