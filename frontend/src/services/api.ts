@@ -21,9 +21,9 @@ export function getApiBaseUrl(): string {
     return '/api/v1';
   }
 
-  // 4. When accessed over HTTPS (e.g. GitHub Pages or Netlify), enforce HTTPS to avoid Mixed Content
+  // 4. When accessed over HTTPS (e.g. GitHub Pages or Netlify), connect to live production Vercel API
   if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    return 'https://leadflow-api.onrender.com/api/v1';
+    return 'https://leadflow-liart-tau.vercel.app/api/v1';
   }
 
   // 5. Default for local HTTP development
