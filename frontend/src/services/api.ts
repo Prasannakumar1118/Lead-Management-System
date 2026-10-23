@@ -2,11 +2,21 @@ import axios, { AxiosError } from 'axios';
 
 // Dynamic API Base URL resolution supporting local dev, cloud tunnels, and user overrides
 export function getApiBaseUrl(): string {
-  // 1. User manual override stored in localStorage
+  // 1. User manual override stored in localStorage (with legacy dead endpoint purge)
   if (typeof window !== 'undefined') {
     const savedUrl = localStorage.getItem('leadflow_api_url');
     if (savedUrl && savedUrl.trim()) {
-      return savedUrl.trim().replace(/\/+$/, '');
+      const trimmed = savedUrl.trim().replace(/\/+$/, '');
+      // Automatically purge deprecated Render/localtunnel endpoints stored in previous sessions
+      if (
+        trimmed.includes('onrender.com') ||
+        trimmed.includes('loca.lt') ||
+        (window.location.protocol === 'https:' && trimmed.startsWith('http://localhost'))
+      ) {
+        localStorage.removeItem('leadflow_api_url');
+      } else {
+        return trimmed;
+      }
     }
   }
 
@@ -105,7 +115,7 @@ export function getApiErrorMessage(error: unknown): string {
     }
 
     if (error.response?.status === 503) {
-      return `Backend Service Suspended (HTTP 503): The cloud backend at "${currentBaseUrl}" is suspended. Please resume the service in your Render dashboard (https://dashboard.render.com) or enter an active backend URL in the API Server Settings below.`;
+      return `Backend Service Unavailable (HTTP 503): The cloud API server at "${currentBaseUrl}" is currently unavailable. Please verify the backend service status or configure an active API endpoint below.`;
     }
 
     if (error.response?.status === 502) {

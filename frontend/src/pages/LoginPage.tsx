@@ -50,7 +50,7 @@ export const LoginPage: React.FC = () => {
         setHealthMessage('Backend Online & Connected');
       } else if (res.status === 503) {
         setHealthStatus('error');
-        setHealthMessage('Service Suspended on Render (resume in dashboard.render.com)');
+        setHealthMessage('Backend Service Temporarily Unavailable (HTTP 503)');
       } else if (res.status === 502) {
         setHealthStatus('checking');
         setHealthMessage('Server Booting / Cold-starting...');
@@ -69,7 +69,11 @@ export const LoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    checkHealth();
+    // Ensure any obsolete endpoints stored in localStorage are cleared
+    const cleanUrl = getApiBaseUrl();
+    setApiUrl(cleanUrl);
+    setInputUrl(cleanUrl);
+    checkHealth(cleanUrl);
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
